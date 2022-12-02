@@ -140,7 +140,10 @@ class Detector:
                     cv2.line(image, (x + w, y + h), (x + w, y + h -  lineWidth), classColor, thickness=5)
 
             ### DISPLAY LABELS OF PRESENT OBJECTS ###
+            # Get class distribution
             displayText = self.classCount(classLabelIds).split('\n')
+
+            # Loop through each line in the display text
             for i in range(0, len(displayText)):
                 # Draw a rectangle background for display text (OPTIONAL)
                 #text_size, _ = cv2.getTextSize(displayText[i], cv2.FONT_HERSHEY_PLAIN, 1, 2)

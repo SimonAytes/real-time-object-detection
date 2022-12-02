@@ -15,3 +15,7 @@ Install the requirements file using the following command:
 3. Specify the input file (test videos are included in the `./videos/` folder), or enter `0` for real-time webcam capture
 
 4. Let video play in its entirety, or press `q` to quit
+
+## References
+
+The underlying data and models were provided by [OpenCV](https://opencv.org/) and the [COCO dataset](https://cocodataset.org/#home).

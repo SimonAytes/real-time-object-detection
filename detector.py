@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import time
+from collections import Counter
 
 # consistent coloring
 np.random.seed(20)
@@ -39,8 +40,28 @@ class Detector:
         # Create color list for classes using random seed for consistency
         self.colorList = np.random.uniform(low=0, high=255, size=(len(self.classesList), 3))
 
-        # Debug -- Print list of pre-trained classes
-        #print(self.classesList)
+    def classCount(self, classLabelIds):
+        """Get a text string with the number of classes to display on the frame."""
+        # Get the number of occurences for each id
+        objects = Counter(list(classLabelIds)).most_common()
+
+        # Seed the display text
+        displayText = "-- OBJECTS --\n"
+
+        # Loop through each object tuple --> format = (ID, num occurences)
+        for object in objects:
+            # Get the name and number of occurences
+            obj_name = self.classesList[object[0]]
+            num_occurences = object[1]
+            
+            # Create temporary text for object
+            temp_text = "{} (Count: {})\n".format(obj_name.upper(), num_occurences)
+            
+            # Append temp text to the display text
+            displayText += temp_text
+        
+        # Return text containing all objects and occurences
+        return displayText
 
     def onVideo(self):
         """Play the video and detect in real-time during playback (video) or capture (webcam)"""
@@ -63,7 +84,7 @@ class Detector:
             # Detect predefined classes in frame
             # Confidence is set at 50%
             classLabelIds, confidences, bboxs = self.net.detect(image, confThreshold = 0.5)
-
+            
             # Get all coordinates of objects
             bboxs = list(bboxs)
             
@@ -87,15 +108,15 @@ class Detector:
                     classLabel = self.classesList[classLabelID]
                     classColor = [int(c) for c in self.colorList[classLabelID]]
 
-                    ### CREATE TEXT ###
-                    displayText = "{}:{:.2f}".format(classLabel, classConfidence)
-
                     ### DRAW BOXES ###
                     # Get the vertices of the box
                     x, y, w, h = bbox
 
-                    # Create a box at the given vertices and display the text
+                    # Create a box at the given vertices
                     cv2.rectangle(image, (x, y), (x+w, y+h), color=classColor, thickness=1)
+                    
+                    # Create a text with the class label and confidence (rounded to 2 decimals)
+                    displayText = "{}:{:.2f}".format(classLabel, classConfidence)
                     cv2.putText(image, displayText, (x, y-10), cv2.FONT_HERSHEY_PLAIN, 1, classColor, 2)
 
                     ### CREATE CORNER BOUNDARIES ###
@@ -118,6 +139,19 @@ class Detector:
                     cv2.line(image, (x + w, y + h), (x + w - lineWidth, y + h), classColor, thickness=5)
                     cv2.line(image, (x + w, y + h), (x + w, y + h -  lineWidth), classColor, thickness=5)
 
+            ### DISPLAY LABELS OF PRESENT OBJECTS ###
+            displayText = self.classCount(classLabelIds).split('\n')
+            for i in range(0, len(displayText)):
+                # Draw a rectangle background for display text (OPTIONAL)
+                #text_size, _ = cv2.getTextSize(displayText[i], cv2.FONT_HERSHEY_PLAIN, 1, 2)
+                #text_w, text_h = text_size
+                #cv2.rectangle(image, (50, 50 + (i*20)), (50 + text_w, 50 +(i*20) + text_h), (0, 0, 0), -1)
+
+                # Display the text on a new line (20 pixels barrier)
+                cv2.putText(image, displayText[i], (50, 50 + (i*20)), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 2)
+                
+
+            
             # Display the labeled image
             cv2.imshow("Result", image)
 

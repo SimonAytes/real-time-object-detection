@@ -93,7 +93,8 @@ class Detector:
             confidences = list(map(float, confidences))
 
             # Retrieve the IDs of the objects found in the image
-            bboxIdx = cv2.dnn.NMSBoxes(bboxs, confidences, score_threshold = 0.5, nms_threshold = 0.2)
+            # Will only show objects with a confidence of >=0.5, and an nms value of <=0.1
+            bboxIdx = cv2.dnn.NMSBoxes(bboxs, confidences, score_threshold = 0.5, nms_threshold = 0.1)
 
             # If there are objets present, execute the following...
             if len(bboxIdx) != 0:

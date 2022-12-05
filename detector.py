@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 import time
 from collections import Counter
+from datetime import datetime as dt
 
 # consistent coloring
 np.random.seed(20)
@@ -78,6 +79,10 @@ class Detector:
         # success is set by this initial expression and is then set at the end of each loop.
         # -- this controls the flow and shows that there is a frame next in the sequence
         (success, image) = cap.read()
+
+        ### PERFORMANCE DETAILS ###
+        self.tick = dt.now() #Start the timer
+        self.num_frames = 0
 
         # While the frame is present
         while success:
@@ -168,5 +173,12 @@ class Detector:
             # If there is, success = True, and the loop executes again
             (success, image) = cap.read()
 
+            # Iterate frame counter
+            self.num_frames += 1
+
         # When (A) the exit key is pressed or (B) there are no more frames, exit program.
         cv2.destroyAllWindows()
+        
+        # Output the average time for processing each frame
+        self.tock = dt.now() - self.tick # Calculate the end time of the processing
+        print(f"PERFORMANCE DETAILS:\n\tTotal Frames Processed: {self.num_frames}\n\tAverage Processing Time: {round(self.tock.seconds / self.num_frames, 2)} seconds")
